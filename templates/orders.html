@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, tracker %}
+{% block title %}My orders{% endblock %}
+{% block head %}<meta http-equiv="refresh" content="20">{% endblock %}
+{% block content %}
+<div class="section-head"><h1>My orders</h1><span class="muted">Updates automatically</span></div>
+{% if orders %}
+<div class="stack">
+  {% for o in orders %}
+  <article class="card order">
+    <div class="order-top">
+      <div><h3>{{ o.shop_name }}</h3><span class="muted" style="font-size:.82rem">Order #{{ o.id }} &middot; {{ o.created_at|when }}</span></div>
+      <span class="status s-{{ o.status }}">{{ 'Ready for pickup' if o.status == 'Ready' else o.status }}</span>
+    </div>
+    {{ tracker(o.status) }}
+    <div class="order-lines">
+      {% for i in o['items'] %}<div><span>{{ i.qty }} x {{ i.name }}</span><span>{{ (i.price * i.qty)|money }}</span></div>{% endfor %}
+    </div>
+    {% if o.note %}<p class="note">Note: {{ o.note }}</p>{% endif %}
+    <div class="order-foot">
+      <b>Total {{ o.total|money }}</b>
+      {% if o.status == 'Pending' %}
+      <form method="post" action="{{ url_for('cancel_order', order_id=o.id) }}" onsubmit="return confirm('Cancel this order?')">
+        <button class="btn btn-danger btn-sm">Cancel order</button>
+      </form>
+      {% else %}
+      <span class="muted" style="font-size:.82rem">The stall has started, so it can't be cancelled now.</span>
+      {% endif %}
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty"><h3>No active orders</h3><p>Hungry? Order something from a stall.</p>
+  <a class="btn btn-primary" href="{{ url_for('stalls') }}">Browse stalls</a></div>
+{% endif %}
+{% endblock %}

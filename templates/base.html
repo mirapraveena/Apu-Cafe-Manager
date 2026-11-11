@@ -1,0 +1,64 @@
+{% from "_macros.html" import icon %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}MealSync{% endblock %} | MealSync</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+{% set ep = request.endpoint %}
+{% if user %}
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="{{ url_for('home') }}"><span class="brand-mark">M</span><span>MealSync</span></a>
+    <nav class="nav-links">
+      {% if user.role == 'student' %}
+        <a class="{{ 'active' if ep in ('stalls', 'stall_menu') }}" href="{{ url_for('stalls') }}">{{ icon('grid') }}<span>Stalls</span></a>
+        <a class="{{ 'active' if ep == 'cart' }}" href="{{ url_for('cart') }}">{{ icon('cart') }}<span>Cart</span>
+          <span class="pill-count" id="nav-cart-count" {% if not cart_count %}hidden{% endif %}>{{ cart_count }}</span></a>
+        <a class="{{ 'active' if ep == 'my_orders' }}" href="{{ url_for('my_orders') }}">{{ icon('clock') }}<span>My orders</span></a>
+        <a class="{{ 'active' if ep == 'history' }}" href="{{ url_for('history') }}">{{ icon('file') }}<span>History</span></a>
+        <a class="{{ 'active' if ep == 'spending' }}" href="{{ url_for('spending') }}">{{ icon('chart') }}<span>Spending</span></a>
+      {% else %}
+        <a class="{{ 'active' if ep == 'vendor_orders' }}" href="{{ url_for('vendor_orders') }}">{{ icon('bell') }}<span>Live orders</span></a>
+        <a class="{{ 'active' if ep == 'vendor_menu' }}" href="{{ url_for('vendor_menu') }}">{{ icon('list') }}<span>Menu</span></a>
+        <a class="{{ 'active' if ep == 'vendor_report' }}" href="{{ url_for('vendor_report') }}">{{ icon('chart') }}<span>Report</span></a>
+      {% endif %}
+    </nav>
+    <div class="nav-user">
+      <div class="who">
+        {% if user.role == 'student' %}<b>{{ user.name }}</b><span>{{ user.tp_number }}</span>
+        {% else %}<b>{{ user.shop_name }}</b><span>@{{ user.username }}</span>{% endif %}
+      </div>
+      <a class="logout" href="{{ url_for('logout') }}" title="Log out">{{ icon('logout', 18) }}</a>
+    </div>
+  </div>
+</header>
+{% endif %}
+
+<div class="toasts">
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% for cat, m in msgs %}<div class="toast {{ cat }}">{{ m }}</div>{% endfor %}
+  {% endwith %}
+</div>
+
+{% block main %}
+<main class="container">{% block content %}{% endblock %}</main>
+{% endblock %}
+
+{% if user and user.role == 'student' and ep != 'cart' %}
+<a id="cartbar" class="cartbar {{ '' if cart_count else 'hide' }}" {% if not cart_count %}hidden{% endif %} href="{{ url_for('cart') }}">
+  <span>{{ icon('cart', 18) }}<b id="cartbar-count">{{ cart_count }}</b> items</span>
+  <span id="cartbar-total">{{ cart_total|money }}</span>
+  <span class="go">View cart</span>
+</a>
+{% endif %}
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

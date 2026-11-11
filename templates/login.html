@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Log in{% endblock %}
+{% block main %}
+<div class="auth">
+  <aside class="auth-art">
+    <div class="auth-art-inner">
+      <div class="brand light"><span class="brand-mark">M</span><span>MealSync</span></div>
+      <h1>Skip the queue.<br>Order ahead at APU.</h1>
+      <p>Pick a stall, order from wherever you are, and collect your food when it's ready.</p>
+      <ul class="points">
+        <li><i>1</i>Browse menus with photos and prices</li>
+        <li><i>2</i>Track your order live</li>
+        <li><i>3</i>See where your money goes each week</li>
+      </ul>
+    </div>
+  </aside>
+  <section class="auth-form">
+    <div class="auth-card">
+      <h2>Welcome back</h2>
+      <p class="muted">Log in to continue.</p>
+      <div class="seg" data-seg>
+        <button type="button" data-role="student" class="{{ 'active' if role == 'student' }}">Student</button>
+        <button type="button" data-role="vendor" class="{{ 'active' if role == 'vendor' }}">Vendor</button>
+      </div>
+      <form method="post">
+        <input type="hidden" name="role" value="{{ role }}">
+        <div data-panel="student" {% if role != 'student' %}hidden{% endif %}>
+          <label class="field"><span>TP number</span>
+            <input class="input" name="tp_number" placeholder="TP012345" autocomplete="username" required></label>
+        </div>
+        <div data-panel="vendor" {% if role != 'vendor' %}hidden{% endif %}>
+          <label class="field"><span>Stall</span>
+            <select class="input" name="vendor_id" required>
+              {% for v in vendors %}<option value="{{ v.id }}">{{ v.shop_name }}</option>{% else %}<option value="">No stalls registered yet</option>{% endfor %}
+            </select></label>
+        </div>
+        <label class="field"><span>Password</span>
+          <input class="input" type="password" name="password" autocomplete="current-password" required></label>
+        <button class="btn btn-primary btn-block">Log in</button>
+      </form>
+      <p class="alt center muted">New here? <a data-role-link href="{{ url_for('register', role=role) }}">Create an account</a></p>
+    </div>
+  </section>
+</div>
+{% endblock %}

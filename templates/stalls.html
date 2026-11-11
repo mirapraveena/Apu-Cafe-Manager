@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, thumb %}
+{% block title %}Stalls{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">Hi, {{ user.name.split(' ')[0] }}</p>
+    <h1>What are you eating today?</h1>
+    <p class="sub">Order ahead from campus stalls and pick it up when it's ready.</p>
+  </div>
+  <label class="search">{{ icon('search', 18) }}<input id="stallSearch" placeholder="Search stalls" autocomplete="off"></label>
+</section>
+
+<div class="section-head"><h2>Stalls</h2><span class="muted">{{ vendors|length }} on campus</span></div>
+{% if vendors %}
+<div class="grid">
+  {% for v in vendors %}
+  <a class="stall-card" data-name="{{ v.shop_name|lower }}" href="{{ url_for('stall_menu', vendor_id=v.id) }}">
+    {{ thumb(v.cover, v.shop_name, 'cover') }}
+    <div class="stall-body">
+      <div><h3>{{ v.shop_name }}</h3><p class="muted">{{ v.item_count }} items available</p></div>
+      <span class="go-arrow">{{ icon('arrow', 16) }}</span>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+<p class="muted center" id="noStalls" hidden style="margin-top:24px">No stalls match your search.</p>
+{% else %}
+<div class="empty"><h3>No stalls yet</h3><p>Stalls will show up here once they sign up.</p></div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, thumb %}
+{% block title %}{{ vendor.shop_name }}{% endblock %}
+{% block content %}
+<a class="back" href="{{ url_for('stalls') }}">{{ icon('back', 16) }} All stalls</a>
+<div class="menu-head">
+  <div><h1>{{ vendor.shop_name }}</h1><p class="muted">{{ items|length }} items on the menu</p></div>
+  {% if cats|length > 1 %}
+  <div class="chips">
+    <button type="button" class="chip active" data-chip="all">All</button>
+    {% for c in cats %}<button type="button" class="chip" data-chip="{{ c }}">{{ c }}</button>{% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+{% if items %}
+<div class="grid">
+  {% for it in items %}
+  <article class="item-card" data-cat="{{ it.category }}">
+    <div class="item-media">
+      {{ thumb(it.image, it.name) }}
+      <span class="cat-tag">{{ it.category }}</span>
+      {% if not it.available %}<span class="sold-tag">Sold out</span>{% endif %}
+    </div>
+    <div class="item-body">
+      <div><h3>{{ it.name }}</h3><span class="price">{{ it.price|money }}</span></div>
+      {% if it.available %}
+      <form class="add-row js-add" method="post" action="{{ url_for('cart_add') }}">
+        <input type="hidden" name="item_id" value="{{ it.id }}">
+        <div class="stepper">
+          <button type="button" data-step="-1">&minus;</button>
+          <input name="qty" value="1" readonly>
+          <button type="button" data-step="1">+</button>
+        </div>
+        <button class="btn btn-accent btn-sm">{{ icon('plus', 16) }} Add</button>
+      </form>
+      {% endif %}
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty"><h3>Nothing here yet</h3><p>This stall hasn't added any items.</p></div>
+{% endif %}
+{% endblock %}

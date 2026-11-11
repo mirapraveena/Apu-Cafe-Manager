@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon %}
+{% block title %}Live orders{% endblock %}
+{% block head %}<meta http-equiv="refresh" content="15">{% endblock %}
+{% block content %}
+<div class="section-head"><h1>Live orders</h1><span class="muted">Refreshes every 15 seconds</span></div>
+
+{% if not has_menu %}
+<div class="card" style="margin-bottom:18px;border-left:4px solid var(--orange)">
+  <b>Your menu is empty.</b> <span class="muted">Add items so students can order.</span>
+  <a class="btn btn-accent btn-sm" style="margin-left:10px" href="{{ url_for('vendor_menu') }}">Add menu items</a>
+</div>
+{% endif %}
+
+{% set cols = [('Pending', 'New orders', 'new', 'Preparing', 'Start preparing'),
+               ('Preparing', 'Preparing', 'prep', 'Ready', 'Mark ready'),
+               ('Ready', 'Ready for pickup', 'ready', 'Completed', 'Mark collected')] %}
+<div class="board">
+  {% for status, title, css, nxt, label in cols %}
+  <section class="col {{ css }}">
+    <div class="col-head"><h3>{{ title }}</h3><span class="n">{{ board[status]|length }}</span></div>
+    {% for o in board[status] %}
+    <article class="ocard">
+      <div style="display:flex;justify-content:space-between;gap:8px"><h3>Order #{{ o.id }}</h3><b>{{ o.total|money }}</b></div>
+      <p class="who2">{{ o.student_name }} ({{ o.tp_number }}) &middot; {{ o.created_at|when }}</p>
+      <div class="lines">{% for i in o['items'] %}<div>{{ i.qty }} x {{ i.name }}</div>{% endfor %}</div>
+      {% if o.note %}<p class="note">Note: {{ o.note }}</p>{% endif %}
+      <div class="actions">
+        <form method="post" action="{{ url_for('vendor_status', order_id=o.id) }}">
+          <input type="hidden" name="status" value="{{ nxt }}">
+          <button class="btn btn-primary btn-sm">{{ label }}</button>
+        </form>
+        <form method="post" action="{{ url_for('vendor_status', order_id=o.id) }}" onsubmit="return confirm('Cancel order #{{ o.id }}?')">
+          <input type="hidden" name="status" value="Cancelled">
+          <button class="btn btn-danger btn-sm">Cancel</button>
+        </form>
+      </div>
+    </article>
+    {% else %}
+    <p class="none">Nothing here</p>
+    {% endfor %}
+  </section>
+  {% endfor %}
+</div>
+{% endblock %}

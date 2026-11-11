@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Create account{% endblock %}
+{% block main %}
+<div class="auth">
+  <aside class="auth-art">
+    <div class="auth-art-inner">
+      <div class="brand light"><span class="brand-mark">M</span><span>MealSync</span></div>
+      <h1>Join MealSync.</h1>
+      <p>Students order ahead. Stalls manage their menu and orders in one place.</p>
+      <ul class="points">
+        <li><i>S</i>Students sign up with their TP number</li>
+        <li><i>V</i>Vendors add a menu with photos and prices</li>
+      </ul>
+    </div>
+  </aside>
+  <section class="auth-form">
+    <div class="auth-card">
+      <h2>Create account</h2>
+      <p class="muted">It takes under a minute.</p>
+      <div class="seg" data-seg>
+        <button type="button" data-role="student" class="{{ 'active' if role == 'student' }}">Student</button>
+        <button type="button" data-role="vendor" class="{{ 'active' if role == 'vendor' }}">Vendor</button>
+      </div>
+      <form method="post">
+        <input type="hidden" name="role" value="{{ role }}">
+        <div data-panel="student" {% if role != 'student' %}hidden{% endif %}>
+          <label class="field"><span>TP number</span>
+            <input class="input" name="tp_number" placeholder="TP012345" value="{{ form.get('tp_number', '') }}" required></label>
+          <label class="field"><span>Name</span>
+            <input class="input" name="name" value="{{ form.get('name', '') }}" required></label>
+        </div>
+        <div data-panel="vendor" {% if role != 'vendor' %}hidden{% endif %}>
+          <label class="field"><span>Shop name</span>
+            <input class="input" name="shop_name" value="{{ form.get('shop_name', '') }}" required></label>
+          <label class="field"><span>Username</span>
+            <input class="input" name="username" value="{{ form.get('username', '') }}" required></label>
+        </div>
+        <label class="field"><span>Password (6+ characters)</span>
+          <input class="input" type="password" name="password" autocomplete="new-password" required></label>
+        <label class="field"><span>Confirm password</span>
+          <input class="input" type="password" name="confirm" autocomplete="new-password" required></label>
+        <button class="btn btn-primary btn-block">Create account</button>
+      </form>
+      <p class="alt center muted">Already have one? <a data-role-link href="{{ url_for('login', role=role) }}">Log in</a></p>
+    </div>
+  </section>
+</div>
+{% endblock %}

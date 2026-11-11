@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, thumb %}
+{% block title %}Cart{% endblock %}
+{% block content %}
+<div class="section-head"><h1>Your cart</h1></div>
+{% if lines %}
+<div class="split">
+  <div class="stack">
+    <p class="muted">Ordering from <b style="color:var(--ink)">{{ vendor.shop_name }}</b></p>
+    {% for l in lines %}
+    <div class="line card">
+      <div class="line-thumb">{{ thumb(l.image, l.name) }}</div>
+      <div class="line-info"><h3>{{ l.name }}</h3><span class="muted">{{ l.price|money }} each</span></div>
+      <form method="post" action="{{ url_for('cart_update') }}" class="stepper">
+        <input type="hidden" name="item_id" value="{{ l.id }}">
+        <button name="delta" value="-1" title="Less">&minus;</button>
+        <span class="qty">{{ l.qty }}</span>
+        <button name="delta" value="1" title="More">+</button>
+      </form>
+      <b class="line-total">{{ l.line_total|money }}</b>
+      <form method="post" action="{{ url_for('cart_remove') }}">
+        <input type="hidden" name="item_id" value="{{ l.id }}">
+        <button class="icon-btn" title="Remove">&times;</button>
+      </form>
+    </div>
+    {% endfor %}
+    <form method="post" action="{{ url_for('cart_clear') }}"><button class="btn btn-ghost btn-sm">Clear cart</button></form>
+  </div>
+
+  <aside class="card summary">
+    <h3 style="margin-bottom:14px">Order summary</h3>
+    <div class="row"><span class="muted">Items</span><span>{{ lines|sum(attribute='qty') }}</span></div>
+    <hr>
+    <div class="row big"><span>Total</span><span>{{ total|money }}</span></div>
+    <form method="post" action="{{ url_for('checkout') }}">
+      <label class="field" style="margin-top:14px"><span>Note for the stall (optional)</span>
+        <textarea class="input" name="note" maxlength="200" placeholder="e.g. less spicy"></textarea></label>
+      <button class="btn btn-accent btn-block" style="padding:13px">Place order</button>
+    </form>
+    <p class="muted" style="font-size:.78rem;margin-top:10px">You can cancel until the stall starts preparing.</p>
+  </aside>
+</div>
+{% else %}
+<div class="empty">
+  <h3>Your cart is empty</h3>
+  <p>Pick a stall and add something tasty.</p>
+  <a class="btn btn-primary" href="{{ url_for('stalls') }}">Browse stalls</a>
+</div>
+{% endif %}
+{% endblock %}

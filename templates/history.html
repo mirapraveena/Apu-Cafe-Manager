@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}History{% endblock %}
+{% block content %}
+<div class="section-head"><h1>Order history</h1></div>
+<div class="chips" style="margin-bottom:18px">
+  <a class="chip {{ 'active' if chosen == 'all' }}" href="{{ url_for('history') }}">All</a>
+  {% for s in statuses %}<a class="chip {{ 'active' if chosen == s }}" href="{{ url_for('history', status=s) }}">{{ s }}</a>{% endfor %}
+</div>
+{% if orders %}
+<div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Order</th><th>Date</th><th>Stall</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for o in orders %}
+      <tr>
+        <td>#{{ o.id }}</td>
+        <td>{{ o.created_at|when }}</td>
+        <td>{{ o.shop_name }}</td>
+        <td>{% for i in o['items'] %}{{ i.qty }} x {{ i.name }}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+        <td><b>{{ o.total|money }}</b></td>
+        <td><span class="status s-{{ o.status }}">{{ o.status }}</span></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty"><h3>Nothing to show</h3><p>No orders match this filter.</p></div>
+{% endif %}
+{% endblock %}

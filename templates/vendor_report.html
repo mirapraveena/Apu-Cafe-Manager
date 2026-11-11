@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Report{% endblock %}
+{% block content %}
+<div class="section-head"><h1>Order history &amp; report</h1><span class="muted">Revenue counts completed orders only</span></div>
+
+<form class="filters" method="get">
+  <label class="field"><span>From</span><input class="input" type="date" name="from" value="{{ start }}"></label>
+  <label class="field"><span>To</span><input class="input" type="date" name="to" value="{{ end }}"></label>
+  <button class="btn btn-primary">Apply</button>
+</form>
+
+{% if orders %}
+<div class="kpis">
+  <div class="kpi"><span>Revenue</span><b>{{ revenue|money }}</b></div>
+  <div class="kpi"><span>Completed orders</span><b>{{ done }}</b></div>
+  <div class="kpi"><span>Cancelled</span><b>{{ cancelled }}</b></div>
+  <div class="kpi"><span>Average order</span><b>{{ average|money }}</b></div>
+</div>
+
+{% if daily %}
+<div class="charts">
+  <div class="card bars"><h3>Revenue by day</h3>
+    {% for r in daily %}<div class="row"><span>{{ r.label }}</span><div class="bar"><i style="width:{{ r.pct }}%"></i></div><span>{{ r.value|money }}</span></div>{% endfor %}
+  </div>
+  <div class="card bars orange"><h3>Best sellers</h3>
+    {% for r in top %}<div class="row"><span title="{{ r.label }}">{{ r.label }}</span><div class="bar"><i style="width:{{ r.pct }}%"></i></div><span>{{ r.value|int }} sold</span></div>{% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="section-head"><h2>All orders</h2></div>
+<div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Order</th><th>Date</th><th>Student</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for o in orders %}
+      <tr>
+        <td>#{{ o.id }}</td>
+        <td>{{ o.created_at|when }}</td>
+        <td>{{ o.student_name }}<br><span class="muted" style="font-size:.78rem">{{ o.tp_number }}</span></td>
+        <td>{% for i in o['items'] %}{{ i.qty }} x {{ i.name }}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+        <td><b>{{ o.total|money }}</b></td>
+        <td><span class="status s-{{ o.status }}">{{ o.status }}</span></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty"><h3>No orders in this period</h3><p>Try a wider date range.</p></div>
+{% endif %}
+{% endblock %}

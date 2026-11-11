@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, thumb %}
+{% block title %}Menu{% endblock %}
+{% block content %}
+<div class="section-head"><h1>Menu</h1><span class="muted">Add items, set prices, upload photos</span></div>
+
+<form class="card add-panel" method="post" action="{{ url_for('vendor_menu_add') }}" enctype="multipart/form-data">
+  <label class="img-pick">
+    <div class="thumb ph">{{ icon('image', 30) }}</div>
+    <span class="img-hint">Add photo</span>
+    <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif" data-preview hidden>
+  </label>
+  <div>
+    <h3 style="margin-bottom:14px">New item</h3>
+    <div class="add-fields">
+      <label class="field"><span>Name</span><input class="input" name="name" required></label>
+      <label class="field"><span>Price (RM)</span><input class="input" type="number" name="price" step="0.10" min="0.10" required></label>
+      <label class="field"><span>Category</span>
+        <select class="input" name="category">{% for c in CATEGORIES %}<option>{{ c }}</option>{% endfor %}</select></label>
+    </div>
+    <button class="btn btn-accent">{{ icon('plus', 16) }} Add item</button>
+  </div>
+</form>
+
+<div class="section-head"><h2>Current items</h2><span class="muted">{{ items|length }} items</span></div>
+{% if items %}
+<div class="grid">
+  {% for it in items %}
+  <form class="card edit-card" method="post" action="{{ url_for('vendor_menu_edit', item_id=it.id) }}" enctype="multipart/form-data">
+    <label class="img-pick">
+      {{ thumb(it.image, it.name) }}
+      <span class="img-hint">Change photo</span>
+      <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif" data-preview hidden>
+    </label>
+    <div class="edit-body">
+      <label class="field"><span>Name</span><input class="input" name="name" value="{{ it.name }}" required></label>
+      <div class="two">
+        <label class="field"><span>Price (RM)</span><input class="input" type="number" name="price" step="0.10" min="0.10" value="{{ '%.2f'|format(it.price) }}" required></label>
+        <label class="field"><span>Category</span>
+          <select class="input" name="category">{% for c in CATEGORIES %}<option {{ 'selected' if c == it.category }}>{{ c }}</option>{% endfor %}</select></label>
+      </div>
+      <div class="edit-actions">
+        <label class="switch"><input type="checkbox" name="available" {% if it.available %}checked{% endif %}>Available</label>
+        <span style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm">Save</button>
+          <button class="btn btn-danger btn-sm" formaction="{{ url_for('vendor_menu_delete', item_id=it.id) }}" formnovalidate
+                  onclick="return confirm('Delete {{ it.name|e }}?')">Delete</button>
+        </span>
+      </div>
+    </div>
+  </form>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty"><h3>No items yet</h3><p>Add your first item above.</p></div>
+{% endif %}
+{% endblock %}
